@@ -1,0 +1,34 @@
+# Dependencias
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Build anterior
+dist/
+build/
+
+# Control de versiones
+.git/
+.gitignore
+
+# Variables de entorno locales
+.env
+.env.local
+.env.*.local
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Microservicios (no son parte del frontend)
+Microservices_PRS/
+
+# Docs y archivos innecesarios para la imagen
+*.md
+LICENSE
+
+# Sistema operativo
+Thumbs.db
+.DS_Store

@@ -944,7 +944,7 @@ public class UserRest {
 }`,
 };
 
-const FE_ANGULAR_STRUCTURE = `📦 vg-ms-users-fe/                    ← Angular 17+ (standalone, SSR-ready)
+const FE_ANGULAR_STRUCTURE = `📦 vg-ms-users-fe/                    ← Angular 17+ (standalone, CSS Framework libre)
 ├── 📂 src/
 │   ├── 📂 app/
 │   │   ├── 📂 core/                       ← Singleton — se carga UNA vez en root
@@ -1007,71 +1007,137 @@ const FE_ANGULAR_STRUCTURE = `📦 vg-ms-users-fe/                    ← Angula
 ├── ⚙️ tsconfig.json
 └── 📦 package.json`;
 
-const FE_REACT_STRUCTURE = `📦 vg-ms-users-fe/                    ← React 19 + Vite + Tailwind
+const FE_REACT_STRUCTURE = `📦 vg-ms-users-fe/                    ← React 19 + Vite + CSS Framework libre
 ├── 📂 src/
-│   ├── 📂 core/                       ← Singleton — se importa UNA vez en root
-│   │   ├── 📂 services/
-│   │   │   ├── 📜 auth.service.js     ← login, logout, token, getUserRole()
-│   │   │   ├── 📜 user.service.js     ← CRUD usuarios (axios + async/await)
-│   │   │   ├── 📜 org.service.js      ← organizaciones, niveles, sedes
-│   │   │   └── 📜 enrollment.service.js
-│   │   ├── 📂 interceptors/
-│   │   │   ├── 📜 axiosConfig.js      ← baseURL + interceptor Bearer JWT
-│   │   │   └── 📜 errorHandler.js     ← captura 401/403, redirige
-│   │   └── 📂 models/
-│   │       ├── 📜 user.model.js       ← JSDoc typedefs: User, UserRequest
-│   │       ├── 📜 org.model.js        ← Organization, Level, Section
-│   │       └── 📜 api-response.model.js
-│   ├── 📂 shared/                     ← Componentes y hooks reutilizables
+│   ├── 📂 core/                       ← Capa núcleo — singleton, se importa UNA vez
+│   │   ├── 📂 adapters/               ← Adaptadores HTTP (patrón Adapter)
+│   │   │   ├── 📜 httpClient.ts       ← instancia Axios + baseURL + timeout
+│   │   │   ├── 📜 requestInterceptor.ts  ← inyecta Bearer JWT en cada request
+│   │   │   ├── 📜 responseInterceptor.ts ← captura 401→refresh, 403→/unauthorized
+│   │   │   └── 📜 index.ts            ← barrel export del httpClient configurado
+│   │   ├── 📂 services/               ← Servicios que consumen adapters
+│   │   │   ├── 📜 auth.service.ts     ← login, logout, refreshToken, getUserRole()
+│   │   │   ├── 📜 user.service.ts     ← CRUD usuarios (getAll, getById, create...)
+│   │   │   ├── 📜 org.service.ts      ← organizaciones, niveles, sedes
+│   │   │   ├── 📜 enrollment.service.ts
+│   │   │   └── 📜 index.ts            ← barrel re-export de todos los services
+│   │   ├── 📂 models/                 ← Interfaces TypeScript de dominio
+│   │   │   ├── 📜 user.model.ts       ← User, UserRequest, UserResponse
+│   │   │   ├── 📜 org.model.ts        ← Organization, Level, Section
+│   │   │   ├── 📜 auth.model.ts       ← LoginRequest, AuthResponse, TokenPayload
+│   │   │   ├── 📜 api-response.model.ts ← ApiResponse<T>, PaginatedResponse<T>
+│   │   │   └── 📜 index.ts
+│   │   ├── 📂 config/                 ← Configuración centralizada de la app
+│   │   │   ├── 📜 env.config.ts       ← parseo y validación de variables VITE_*
+│   │   │   ├── 📜 routes.config.ts    ← constantes de rutas: ROUTES.USERS, etc.
+│   │   │   └── 📜 roles.config.ts     ← enum Role { SUPER_ADMIN, ORG_ADMIN... }
+│   │   └── 📂 constants/
+│   │       ├── 📜 apiEndpoints.ts     ← /api/v1/users, /api/v1/orgs...
+│   │       └── 📜 httpStatus.ts       ← HTTP_STATUS.OK, UNAUTHORIZED, etc.
+│   ├── 📂 shared/                     ← Capa compartida — reutilizable en toda la app
 │   │   ├── 📂 components/
-│   │   │   ├── 📂 navbar/             ← nav dinámico según rol
-│   │   │   ├── 📂 sidebar/            ← menú lateral colapsable por rol
-│   │   │   ├── 📂 modal/              ← modal genérico con props
-│   │   │   ├── 📂 data-table/         ← tabla paginada, filtrable, reutilizable
-│   │   │   └── 📂 toast/              ← notificaciones success/error/warning
-│   │   ├── 📂 hooks/
-│   │   │   ├── 📜 useAuth.js          ← login, logout, role, token
-│   │   │   ├── 📜 useDebounce.js      ← debounce para búsquedas
-│   │   │   └── 📜 useLocalStorage.js
-│   │   └── 📂 guards/
-│   │       ├── ⚛️ ProtectedRoute.jsx   ← redirige a /login si no hay auth
-│   │       └── ⚛️ RoleRoute.jsx        ← verifica rol mínimo (ADMIN, CLIENT…)
-│   ├── 📂 layouts/                    ← Contenedores de layout
-│   │   ├── ⚛️ AdminLayout.jsx         ← sidebar + topbar + <Outlet> (ADMIN+)
-│   │   └── ⚛️ PublicLayout.jsx        ← login, registro, reset password
-│   ├── 📂 features/                   ← Páginas por funcionalidad (lazy loaded)
+│   │   │   ├── 📂 ui/                 ← Design System propio (Button, Input, Badge...)
+│   │   │   │   ├── ⚛️ Button.tsx
+│   │   │   │   ├── ⚛️ Input.tsx
+│   │   │   │   ├── ⚛️ Badge.tsx
+│   │   │   │   ├── ⚛️ Modal.tsx
+│   │   │   │   ├── ⚛️ Spinner.tsx
+│   │   │   │   └── 📜 index.ts        ← barrel export
+│   │   │   ├── 📂 data-display/       ← Componentes de visualización de datos
+│   │   │   │   ├── ⚛️ DataTable.tsx   ← tabla paginada, sorteable, filtrable
+│   │   │   │   ├── ⚛️ StatCard.tsx    ← card con icono + valor + delta %
+│   │   │   │   └── ⚛️ EmptyState.tsx  ← placeholder cuando no hay registros
+│   │   │   ├── 📂 feedback/           ← Feedback al usuario
+│   │   │   │   ├── ⚛️ Toast.tsx       ← notificaciones success/error/warning
+│   │   │   │   ├── ⚛️ ConfirmDialog.tsx ← modal de confirmación reutilizable
+│   │   │   │   └── ⚛️ ErrorBoundary.tsx ← captura errores de rendering
+│   │   │   └── 📂 navigation/         ← Componentes de navegación
+│   │   │       ├── ⚛️ Sidebar.tsx     ← menú lateral colapsable + rol-aware
+│   │   │       ├── ⚛️ Topbar.tsx      ← header con breadcrumbs + user avatar
+│   │   │       └── ⚛️ Breadcrumbs.tsx
+│   │   ├── 📂 hooks/                  ← Custom hooks reutilizables
+│   │   │   ├── 📜 useAuth.ts          ← login, logout, role, token, isAuth
+│   │   │   ├── 📜 useDebounce.ts      ← debounce para search inputs
+│   │   │   ├── 📜 usePagination.ts    ← page, pageSize, total, next, prev
+│   │   │   ├── 📜 useLocalStorage.ts  ← get/set con tipado genérico
+│   │   │   └── 📜 usePermissions.ts   ← canView(), canEdit(), canDelete()
+│   │   ├── 📂 guards/                 ← Route guards (HOC pattern)
+│   │   │   ├── ⚛️ ProtectedRoute.tsx  ← redirige /login si no hay token
+│   │   │   ├── ⚛️ RoleRoute.tsx       ← verifica RBAC (SUPER_ADMIN, ORG_ADMIN...)
+│   │   │   └── ⚛️ GuestRoute.tsx      ← impide acceso si YA está logueado
+│   │   ├── 📂 hoc/                    ← Higher-Order Components
+│   │   │   └── ⚛️ withErrorBoundary.tsx ← envuelve cualquier componente con boundary
+│   │   └── 📂 utils/                  ← Funciones puras utilitarias
+│   │       ├── 📜 formatDate.ts       ← formatear fechas según locale
+│   │       ├── 📜 roleMapper.ts       ← SUPER_ADMIN → "Super Administrador"
+│   │       ├── 📜 validators.ts       ← email, phone, ruc, dni
+│   │       └── 📜 cn.ts              ← classnames helper (clsx/twMerge)
+│   ├── 📂 store/                      ← Estado global (Zustand con slices)
+│   │   ├── 📜 authStore.ts           ← user, token, roles, login(), logout()
+│   │   ├── 📜 uiStore.ts             ← sidebarOpen, theme, toasts[]
+│   │   └── 📜 index.ts
+│   ├── 📂 layouts/                    ← Contenedores de layout (Outlet)
+│   │   ├── ⚛️ AdminLayout.tsx         ← Sidebar + Topbar + <Outlet /> (ADMIN+)
+│   │   ├── ⚛️ PublicLayout.tsx        ← login, registro, reset password
+│   │   └── ⚛️ RootLayout.tsx          ← providers, ErrorBoundary, theme
+│   ├── 📂 features/                   ← Módulos por dominio (lazy loaded)
+│   │   ├── 📂 auth/
+│   │   │   ├── ⚛️ LoginPage.tsx       ← formulario login + validación
+│   │   │   ├── ⚛️ RegisterPage.tsx    ← registro + selección organización
+│   │   │   └── ⚛️ ForgotPasswordPage.tsx
 │   │   ├── 📂 dashboard/
-│   │   │   └── ⚛️ DashboardPage.jsx   ← métricas por org, cards con totales
+│   │   │   ├── ⚛️ DashboardPage.tsx   ← métricas por org, StatCards, gráficos
+│   │   │   ├── 📂 components/
+│   │   │   │   ├── ⚛️ KPICard.tsx
+│   │   │   │   └── ⚛️ RecentActivity.tsx
+│   │   │   └── 📂 hooks/
+│   │   │       └── 📜 useDashboardData.ts
 │   │   ├── 📂 users/
-│   │   │   ├── ⚛️ UserListPage.jsx    ← tabla + filtros + paginación
-│   │   │   └── ⚛️ UserFormPage.jsx    ← crear/editar con React Hook Form
+│   │   │   ├── ⚛️ UserListPage.tsx    ← DataTable + filtros + paginación server-side
+│   │   │   ├── ⚛️ UserFormPage.tsx    ← crear/editar con React Hook Form + Zod
+│   │   │   ├── ⚛️ UserDetailPage.tsx  ← perfil + roles + historial
+│   │   │   ├── 📂 components/
+│   │   │   │   ├── ⚛️ UserFilters.tsx
+│   │   │   │   └── ⚛️ UserCard.tsx
+│   │   │   └── 📂 hooks/
+│   │   │       └── 📜 useUsers.ts      ← getAll, create, update, remove
 │   │   ├── 📂 organizations/
-│   │   │   ├── ⚛️ OrgListPage.jsx     ← lista de orgs (solo SUPER_ADMIN)
-│   │   │   └── ⚛️ OrgDetailPage.jsx   ← niveles, sedes, configuración
+│   │   │   ├── ⚛️ OrgListPage.tsx     ← solo SUPER_ADMIN
+│   │   │   ├── ⚛️ OrgDetailPage.tsx   ← niveles, sedes, configuración
+│   │   │   └── 📂 hooks/
+│   │   │       └── 📜 useOrganizations.ts
 │   │   ├── 📂 enrollment/
-│   │   │   ├── ⚛️ EnrollmentList.jsx  ← matrículas por período y nivel
-│   │   │   └── ⚛️ EnrollmentForm.jsx  ← asignar alumno → grado → sección
+│   │   │   ├── ⚛️ EnrollmentListPage.tsx  ← matrículas por período y nivel
+│   │   │   ├── ⚛️ EnrollmentFormPage.tsx  ← asignar alumno → grado → sección
+│   │   │   └── 📂 hooks/
+│   │   │       └── 📜 useEnrollment.ts
 │   │   ├── 📂 academic/
-│   │   │   ├── ⚛️ GradesPage.jsx      ← registro de notas por curso/sección
-│   │   │   ├── ⚛️ AttendancePage.jsx  ← asistencia diaria por sección
-│   │   │   └── ⚛️ SchedulePage.jsx    ← horario semanal por grado
+│   │   │   ├── ⚛️ GradesPage.tsx      ← registro notas por curso/sección
+│   │   │   ├── ⚛️ AttendancePage.tsx  ← asistencia diaria por sección
+│   │   │   ├── ⚛️ SchedulePage.tsx    ← horario semanal por grado
+│   │   │   └── 📂 hooks/
+│   │   │       └── 📜 useAcademic.ts
 │   │   └── 📂 reports/
-│   │       ├── ⚛️ ReportDashboard.jsx ← gráficos Recharts
-│   │       └── ⚛️ ReportExport.jsx   ← exportar PDF/Excel
-│   ├── 📂 context/                    ← Context API para estado global
-│   │   ├── ⚛️ AuthContext.jsx         ← AuthProvider + useAuthContext
-│   │   └── ⚛️ ThemeContext.jsx        ← dark/light mode
-│   ├── 📂 utils/                      ← Funciones puras reutilizables
-│   │   ├── 📜 formatDate.js
-│   │   ├── 📜 roleUtils.js           ← SUPER_ADMIN → "Super Administrador"
-│   │   └── 📜 constants.js           ← API_URL, ROLES, STATUS
-│   ├── ⚛️ App.jsx                     ← <Routes> + lazy() + <Suspense>
-│   ├── ⚛️ main.jsx                    ← <BrowserRouter> + providers + <App />
-│   └── 🎨 index.css                   ← @import 'tailwindcss'
+│   │       ├── ⚛️ ReportDashboard.tsx ← gráficos Recharts / Chart.js
+│   │       ├── ⚛️ ReportExport.tsx    ← exportar PDF / Excel
+│   │       └── 📂 hooks/
+│   │           └── 📜 useReports.ts
+│   ├── 📂 router/                     ← Configuración de rutas centralizada
+│   │   ├── 📜 index.tsx               ← createBrowserRouter o <Routes>
+│   │   ├── 📜 privateRoutes.tsx       ← rutas protegidas con lazy + guards
+│   │   ├── 📜 publicRoutes.tsx        ← login, register, forgot-password
+│   │   └── 📜 routeLoader.ts          ← loaders para data fetching pre-render
+│   ├── ⚛️ App.tsx                     ← <RouterProvider> o <Routes> + <Suspense>
+│   ├── ⚛️ main.tsx                    ← createRoot + providers + <App />
+│   ├── 🎨 index.css                   ← estilos base (Tailwind / Bootstrap / otro)
+│   └── 📜 vite-env.d.ts               ← tipos de variables de entorno Vite
 ├── 📝 .env                            ← VITE_API_URL=http://localhost:8080/api
+├── 📝 .env.example                     ← plantilla de variables requeridas
 ├── 📄 index.html
 ├── 📦 package.json
-└── ⚙️ vite.config.js`;
+├── ⚙️ tsconfig.json                    ← strict: true, paths: { @/* }
+├── ⚙️ tsconfig.app.json
+└── ⚙️ vite.config.ts                   ← alias @/ → src/, proxy API`;
 
 const FE_ANGULAR_SNIPPET = `// ═══ core/services/user.service.ts ═══
 @Injectable({ providedIn: 'root' })
@@ -1170,115 +1236,289 @@ export const appConfig: ApplicationConfig = {
   ],
 };`;
 
-const FE_REACT_SNIPPET = `// ═══ core/interceptors/axiosConfig.js — baseURL + JWT ═══
-import axios from 'axios';
+const FE_REACT_SNIPPET = `// ═══ core/models/user.model.ts — interfaces tipadas ═══
+export interface User {
+  id: string;
+  email: string;
+  fullName: string;
+  roles: Role[];
+  orgId: string;
+  status: 'A' | 'I';
+  createdAt: string;
+}
+export interface UserRequest {
+  email: string;
+  fullName: string;
+  roles: Role[];
+  orgId: string;
+}
+export interface ApiResponse<T> {
+  data: T;
+  message: string;
+  timestamp: string;
+}
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  page: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+}
+export enum Role {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ORG_ADMIN   = 'ORG_ADMIN',
+  TEACHER     = 'TEACHER',
+  STUDENT     = 'STUDENT',
+}
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+// ═══ core/adapters/httpClient.ts — patrón Adapter ═══
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import { ENV } from '../config/env.config';
+
+const httpClient: AxiosInstance = axios.create({
+  baseURL: ENV.API_URL,
+  timeout: 15_000,
+  headers: { 'Content-Type': 'application/json' },
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) config.headers.Authorization = \`Bearer \${token}\`;
-  return config;
-});
+// Request interceptor — inyecta Bearer JWT
+httpClient.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem('access_token');
+    if (token && config.headers) {
+      config.headers.Authorization = \\\`Bearer \\\${token}\\\`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) window.location.href = '/login';
-    if (err.response?.status === 403) window.location.href = '/unauthorized';
-    return Promise.reject(err);
+// Response interceptor — maneja 401/403 globalmente
+httpClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const status = error.response?.status;
+    if (status === 401) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    if (status === 403) {
+      window.location.href = '/unauthorized';
+    }
+    return Promise.reject(error);
   }
 );
 
-// ═══ core/services/user.service.js — CRUD via axios ═══
-import { api } from '../interceptors/axiosConfig';
+export { httpClient };
+
+// ═══ core/config/env.config.ts — validación de env vars ═══
+export const ENV = Object.freeze({
+  API_URL: import.meta.env.VITE_API_URL as string,
+  APP_NAME: import.meta.env.VITE_APP_NAME as string ?? 'PRS',
+  IS_DEV: import.meta.env.DEV,
+});
+if (!ENV.API_URL) throw new Error('VITE_API_URL no definida en .env');
+
+// ═══ core/services/user.service.ts — CRUD tipado ═══
+import { httpClient } from '../adapters/httpClient';
+import type { User, UserRequest, ApiResponse, PaginatedResponse } from '../models/user.model';
 
 export const userService = {
-  getAll:       ()          => api.get('/api/v1/users'),
-  getByOrg:     (orgId)     => api.get(\`/api/v1/users/organization/\${orgId}\`),
-  create:       (data)      => api.post('/api/v1/users', data),
-  update:       (id, data)  => api.put(\`/api/v1/users/\${id}\`, data),
-  remove:       (id)        => api.delete(\`/api/v1/users/\${id}\`),
-  restore:      (id)        => api.patch(\`/api/v1/users/\${id}/restore\`),
+  getAll:     (page = 0, size = 20) =>
+    httpClient.get<PaginatedResponse<User>>(\\\`/api/v1/users?page=\\\${page}&size=\\\${size}\\\`),
+  getById:    (id: string)          => httpClient.get<ApiResponse<User>>(\\\`/api/v1/users/\\\${id}\\\`),
+  getByOrg:   (orgId: string)       => httpClient.get<ApiResponse<User[]>>(\\\`/api/v1/users/org/\\\${orgId}\\\`),
+  create:     (data: UserRequest)   => httpClient.post<ApiResponse<User>>('/api/v1/users', data),
+  update:     (id: string, data: Partial<UserRequest>) =>
+    httpClient.put<ApiResponse<User>>(\\\`/api/v1/users/\\\${id}\\\`, data),
+  remove:     (id: string)          => httpClient.delete<void>(\\\`/api/v1/users/\\\${id}\\\`),
+  restore:    (id: string)          => httpClient.patch<ApiResponse<User>>(\\\`/api/v1/users/\\\${id}/restore\\\`),
 };
 
-// ═══ shared/hooks/useAuth.js — auth state + role check ═══
-import { useState, useCallback } from 'react';
-import { api } from '../../core/interceptors/axiosConfig';
+// ═══ store/authStore.ts — Zustand con tipado fuerte ═══
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { httpClient } from '../core/adapters/httpClient';
+import type { User, Role } from '../core/models/user.model';
 
-export function useAuth() {
-  const [user, setUser] = useState(() =>
-    JSON.parse(localStorage.getItem('user') || 'null'));
-
-  const login = useCallback(async (credentials) => {
-    const { data } = await api.post('/auth/login', credentials);
-    localStorage.setItem('access_token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    setUser(data.user);
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-    setUser(null);
-  }, []);
-
-  const hasRole = (role) => user?.roles?.includes(role);
-  return { user, login, logout, hasRole, isAuth: !!user };
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuth: boolean;
+  login:   (email: string, password: string) => Promise<void>;
+  logout:  () => void;
+  hasRole: (role: Role) => boolean;
 }
 
-// ═══ shared/guards/ProtectedRoute.jsx ═══
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null, token: null, isAuth: false,
+
+      login: async (email, password) => {
+        const { data } = await httpClient.post('/auth/login', { email, password });
+        localStorage.setItem('access_token', data.token);
+        set({ user: data.user, token: data.token, isAuth: true });
+      },
+
+      logout: () => {
+        localStorage.removeItem('access_token');
+        set({ user: null, token: null, isAuth: false });
+      },
+
+      hasRole: (role) => get().user?.roles?.includes(role) ?? false,
+    }),
+    { name: 'auth-storage', partialize: (s) => ({ user: s.user, token: s.token }) }
+  )
+);
+
+// ═══ shared/guards/ProtectedRoute.tsx — tipado ═══
 import { Navigate, Outlet } from 'react-router-dom';
-export default function ProtectedRoute({ isAuth }) {
+import { useAuthStore } from '../../store/authStore';
+
+export default function ProtectedRoute() {
+  const isAuth = useAuthStore((s) => s.isAuth);
   return isAuth ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
-// ═══ shared/guards/RoleRoute.jsx ═══
+// ═══ shared/guards/RoleRoute.tsx — tipado ═══
 import { Navigate, Outlet } from 'react-router-dom';
-export default function RoleRoute({ hasRole, allowed }) {
-  return allowed.some(hasRole)
+import { useAuthStore } from '../../store/authStore';
+import type { Role } from '../../core/models/user.model';
+
+interface Props { allowed: Role[]; }
+export default function RoleRoute({ allowed }: Props) {
+  const hasRole = useAuthStore((s) => s.hasRole);
+  return allowed.some((r) => hasRole(r))
     ? <Outlet />
     : <Navigate to="/unauthorized" replace />;
 }
 
-// ═══ App.jsx — rutas protegidas con lazy + Suspense ═══
-import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import AdminLayout from './layouts/AdminLayout';
-import PublicLayout from './layouts/PublicLayout';
-import ProtectedRoute from './shared/guards/ProtectedRoute';
-import RoleRoute from './shared/guards/RoleRoute';
+// ═══ shared/components/feedback/ErrorBoundary.tsx ═══
+import { Component, type ReactNode, type ErrorInfo } from 'react';
+interface Props { children: ReactNode; fallback?: ReactNode; }
+interface State { hasError: boolean; }
+export class ErrorBoundary extends Component<Props, State> {
+  state: State = { hasError: false };
+  static getDerivedStateFromError(): State { return { hasError: true }; }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[ErrorBoundary]', error, info);
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback ?? <p>Algo salió mal.</p>;
+    return this.props.children;
+  }
+}
 
-const Dashboard   = lazy(() => import('./features/dashboard/DashboardPage'));
-const UserList    = lazy(() => import('./features/users/UserListPage'));
-const UserForm    = lazy(() => import('./features/users/UserFormPage'));
-const OrgList     = lazy(() => import('./features/organizations/OrgListPage'));
-const Enrollment  = lazy(() => import('./features/enrollment/EnrollmentList'));
+// ═══ shared/hooks/usePermissions.ts — validar acciones por rol ═══
+import { useAuthStore } from '../../store/authStore';
+import { Role } from '../../core/models/user.model';
+
+export function usePermissions() {
+  const hasRole = useAuthStore((s) => s.hasRole);
+  return {
+    canCreate: () => hasRole(Role.SUPER_ADMIN) || hasRole(Role.ORG_ADMIN),
+    canEdit:   () => hasRole(Role.SUPER_ADMIN) || hasRole(Role.ORG_ADMIN),
+    canDelete: () => hasRole(Role.SUPER_ADMIN),
+    canView:   () => true,
+  };
+}
+
+// ═══ features/users/hooks/useUsers.ts — hook de feature ═══
+import { useState, useEffect, useCallback } from 'react';
+import { userService } from '../../../core/services/user.service';
+import type { User } from '../../../core/models/user.model';
+
+export function useUsers(orgId?: string) {
+  const [users, setUsers]     = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState<string | null>(null);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data } = orgId
+        ? await userService.getByOrg(orgId)
+        : await userService.getAll();
+      setUsers('data' in data ? (Array.isArray(data.data) ? data.data : [data.data]) : []);
+    } catch (err: any) {
+      setError(err.message ?? 'Error al cargar usuarios');
+    } finally { setLoading(false); }
+  }, [orgId]);
+
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
+  return { users, loading, error, refetch: fetchUsers };
+}
+
+// ═══ router/privateRoutes.tsx — rutas con lazy + guards ═══
+import { lazy } from 'react';
+import type { RouteObject } from 'react-router-dom';
+import AdminLayout from '../layouts/AdminLayout';
+import ProtectedRoute from '../shared/guards/ProtectedRoute';
+import RoleRoute from '../shared/guards/RoleRoute';
+import { Role } from '../core/models/user.model';
+
+const Dashboard   = lazy(() => import('../features/dashboard/DashboardPage'));
+const UserList    = lazy(() => import('../features/users/UserListPage'));
+const UserForm    = lazy(() => import('../features/users/UserFormPage'));
+const UserDetail  = lazy(() => import('../features/users/UserDetailPage'));
+const OrgList     = lazy(() => import('../features/organizations/OrgListPage'));
+const OrgDetail   = lazy(() => import('../features/organizations/OrgDetailPage'));
+const Enrollment  = lazy(() => import('../features/enrollment/EnrollmentListPage'));
+const Grades      = lazy(() => import('../features/academic/GradesPage'));
+const Attendance  = lazy(() => import('../features/academic/AttendancePage'));
+const Reports     = lazy(() => import('../features/reports/ReportDashboard'));
+
+export const privateRoutes: RouteObject[] = [
+  {
+    element: <ProtectedRoute />,
+    children: [{
+      element: <AdminLayout />,
+      children: [
+        { path: '/dashboard', element: <Dashboard /> },
+        {
+          element: <RoleRoute allowed={[Role.SUPER_ADMIN, Role.ORG_ADMIN]} />,
+          children: [
+            { path: '/users',          element: <UserList /> },
+            { path: '/users/new',      element: <UserForm /> },
+            { path: '/users/:id',      element: <UserDetail /> },
+            { path: '/users/:id/edit', element: <UserForm /> },
+            { path: '/organizations',  element: <OrgList /> },
+            { path: '/organizations/:id', element: <OrgDetail /> },
+            { path: '/enrollment',     element: <Enrollment /> },
+          ],
+        },
+        {
+          element: <RoleRoute allowed={[Role.ORG_ADMIN, Role.TEACHER]} />,
+          children: [
+            { path: '/grades',     element: <Grades /> },
+            { path: '/attendance', element: <Attendance /> },
+          ],
+        },
+        { path: '/reports', element: <Reports /> },
+      ],
+    }],
+  },
+];
+
+// ═══ App.tsx — entry point con providers + ErrorBoundary ═══
+import { Suspense } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ErrorBoundary } from './shared/components/feedback/ErrorBoundary';
+import { privateRoutes } from './router/privateRoutes';
+import { publicRoutes }  from './router/publicRoutes';
+import Spinner from './shared/components/ui/Spinner';
+
+const router = createBrowserRouter([...publicRoutes, ...privateRoutes]);
 
 export default function App() {
-  const { isAuth, hasRole } = useAuth();
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Routes>
-        <Route element={<ProtectedRoute isAuth={isAuth} />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route element={<RoleRoute hasRole={hasRole}
-              allowed={['SUPER_ADMIN','ADMIN']} />}>
-              <Route path="/users" element={<UserList />} />
-              <Route path="/users/new" element={<UserForm />} />
-              <Route path="/organizations" element={<OrgList />} />
-            </Route>
-            <Route path="/enrollment" element={<Enrollment />} />
-          </Route>
-        </Route>
-        <Route element={<PublicLayout />}>
-          <Route path="/login" element={<Login />} />
-        </Route>
-      </Routes>
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<Spinner fullScreen />}>
+        <RouterProvider router={router} />
+      </Suspense>
+    </ErrorBoundary>
   );
 }`;
 
@@ -1292,12 +1532,12 @@ const FE_NAMING_ANGULAR = [
 ];
 
 const FE_NAMING_REACT = [
-     { what: "Component / Page", rule: "PascalCase · .jsx", example: "UserListPage.jsx → export default function UserListPage()", color: "text-sky-400", bg: "bg-sky-500/8 border-sky-500/20" },
-     { what: "Custom Hook", rule: "camelCase · prefijo use · .js", example: "useAuth.js → export function useAuth()", color: "text-teal-400", bg: "bg-teal-500/8 border-teal-500/20" },
-     { what: "Service", rule: "camelCase · .service.js", example: "user.service.js → export const userService = {}", color: "text-violet-400", bg: "bg-violet-500/8 border-violet-500/20" },
-     { what: "Context", rule: "PascalCase · sufijo Context · .jsx", example: "AuthContext.jsx → createContext()", color: "text-pink-400", bg: "bg-pink-500/8 border-pink-500/20" },
-     { what: "Guard", rule: "PascalCase · .jsx", example: "ProtectedRoute.jsx → redirige si no auth", color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/20" },
-     { what: "Utility / Props", rule: "camelCase · .js", example: "formatDate.js, roleUtils.js, constants.js", color: "text-yellow-400", bg: "bg-yellow-500/8 border-yellow-500/20" },
+     { what: "Component / Page", rule: "PascalCase · .tsx", example: "UserListPage.tsx → export default function UserListPage()", color: "text-sky-400", bg: "bg-sky-500/8 border-sky-500/20" },
+     { what: "Custom Hook", rule: "camelCase · prefijo use · .ts", example: "useAuth.ts → export function useAuth(): AuthState", color: "text-teal-400", bg: "bg-teal-500/8 border-teal-500/20" },
+     { what: "Service", rule: "camelCase · .service.ts", example: "user.service.ts → export const userService = { getAll, create... }", color: "text-violet-400", bg: "bg-violet-500/8 border-violet-500/20" },
+     { what: "Store (Zustand)", rule: "camelCase · sufijo Store · .ts", example: "authStore.ts → export const useAuthStore = create<AuthState>()", color: "text-pink-400", bg: "bg-pink-500/8 border-pink-500/20" },
+     { what: "Guard", rule: "PascalCase · .tsx", example: "ProtectedRoute.tsx, RoleRoute.tsx, GuestRoute.tsx", color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/20" },
+     { what: "Model / Config / Util", rule: "camelCase · .ts", example: "user.model.ts, env.config.ts, formatDate.ts", color: "text-yellow-400", bg: "bg-yellow-500/8 border-yellow-500/20" },
 ];
 
 // ─── DEPLOYMENT / ORQUESTACIÓN ─────────────────────────────────────
@@ -2047,7 +2287,7 @@ export default function Semester5() {
                                                        <h2 className="text-white font-bold text-lg">Código ejemplo — consumir API + auth</h2>
                                                   </div>
                                                   <CodeBlock
-                                                       filename={feChoice === "angular" ? "user.service.ts · token.interceptor.ts · app.config.ts" : "axiosConfig.js · userApi.js · useUsers.js"}
+                                                       filename={feChoice === "angular" ? "user.service.ts · token.interceptor.ts · app.config.ts" : "httpClient.ts · user.service.ts · authStore.ts · App.tsx"}
                                                        code={feChoice === "angular" ? FE_ANGULAR_SNIPPET : FE_REACT_SNIPPET}
                                                   />
                                              </div>
@@ -2059,15 +2299,17 @@ export default function Semester5() {
                                                             { name: "Angular 17+", color: "text-rose-400 bg-rose-500/10 border-rose-500/25" },
                                                             { name: "TypeScript", color: "text-blue-400 bg-blue-500/10 border-blue-500/25" },
                                                             { name: "RxJS", color: "text-pink-400 bg-pink-500/10 border-pink-500/25" },
-                                                            { name: "Bootstrap 5", color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/25" },
+                                                            { name: "CSS Framework libre", color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/25" },
                                                             { name: "Angular CLI", color: "text-rose-400 bg-rose-500/10 border-rose-500/25" },
                                                        ] : [
                                                             { name: "React 19", color: "text-sky-400 bg-sky-500/10 border-sky-500/25" },
-                                                            { name: "JavaScript ES6+", color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/25" },
-                                                            { name: "Vite 7", color: "text-violet-400 bg-violet-500/10 border-violet-500/25" },
-                                                            { name: "Tailwind CSS v4", color: "text-teal-400 bg-teal-500/10 border-teal-500/25" },
+                                                            { name: "TypeScript", color: "text-blue-400 bg-blue-500/10 border-blue-500/25" },
+                                                            { name: "Vite", color: "text-violet-400 bg-violet-500/10 border-violet-500/25" },
+                                                            { name: "CSS Framework libre", color: "text-teal-400 bg-teal-500/10 border-teal-500/25" },
+                                                            { name: "Zustand", color: "text-amber-400 bg-amber-500/10 border-amber-500/25" },
                                                             { name: "React Router DOM", color: "text-pink-400 bg-pink-500/10 border-pink-500/25" },
                                                             { name: "Axios", color: "text-blue-400 bg-blue-500/10 border-blue-500/25" },
+                                                            { name: "React Hook Form + Zod", color: "text-orange-400 bg-orange-500/10 border-orange-500/25" },
                                                        ]).map((d) => (
                                                             <span key={d.name} className={`text-xs font-bold font-mono px-3 py-1.5 rounded-xl border ${d.color}`}>{d.name}</span>
                                                        ))}
