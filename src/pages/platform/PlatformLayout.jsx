@@ -5,10 +5,9 @@ import { useAuth } from "../../context/useAuth";
 const SEMESTERS = [
      { num: 1, roman: "I", title: "Fundamentos", sub: "GAS · Ofimática · Análisis", available: true },
      { num: 2, roman: "II", title: "Desarrollo Web", sub: "Java · Flask · MySQL", available: true },
-     { num: 3, roman: "III", title: "Backend", sub: "SpringBoot · Angular", available: false },
-     { num: 4, roman: "IV", title: "Full Stack", sub: "WebFlux · React · MongoDB", available: false },
-     { num: 5, roman: "V", title: "Patrones", sub: "PRS · Diseño", available: false },
-     { num: 6, roman: "VI", title: "Enterprise", sub: "Kafka · PRS", available: false },
+     { num: 3, roman: "III", title: "Backend", sub: "SpringBoot · Angular", available: true },
+     { num: 4, roman: "IV", title: "Full Stack", sub: "WebFlux · React · MongoDB", available: true },
+     { num: 5, roman: "V", title: "Microservicios", sub: "PRS · Enterprise", available: true },
 ];
 
 export default function PlatformLayout() {
@@ -119,7 +118,6 @@ export default function PlatformLayout() {
                     </div>
                </aside>
 
-               {/* Main content */}
                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                     <header className="shrink-0 h-12 flex items-center gap-3 px-4 border-b border-slate-800/70 bg-slate-950">
                          <button

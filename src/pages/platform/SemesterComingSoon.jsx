@@ -5,8 +5,7 @@ const NAMES = {
      2: { title: "Desarrollo Web Fundamental", sub: "Java · Java Swing · MySQL · HTML · Tailwind · Flask" },
      3: { title: "Backend con Spring Boot", sub: "SpringBoot · Angular · SQL Server" },
      4: { title: "Full Stack Integrador", sub: "SpringBoot · WebFlux · React · MongoDB" },
-     5: { title: "Patrones de Diseño", sub: "SpringBoot · WebFlux · React · MySQL · MongoDB" },
-     6: { title: "Arquitectura Enterprise", sub: "SpringBoot · WebFlux · React · MySQL · MongoDB · Kafka" },
+     5: { title: "Microservicios Enterprise", sub: "SpringBoot · WebFlux · React · PostgreSQL · RabbitMQ · Docker" },
 };
 
 export default function SemesterComingSoon() {

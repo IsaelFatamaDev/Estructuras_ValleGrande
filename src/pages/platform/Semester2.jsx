@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import java1 from "../../assets/segundo/Java1.png";
 
 const fadeUp = {
      hidden: { opacity: 0, y: 20, filter: "blur(6px)" },
@@ -164,6 +165,71 @@ const COMMITS = [
 
 
 
+function FileIcon({ name, accentColor }) {
+     const clean = name.replace(/\s*←.*$/, '').trim();
+     const isDir = clean.endsWith('/');
+     const ext = clean.includes('.') ? clean.split('.').pop() : '';
+     if (isDir) return (
+          <svg style={{ width: 13, height: 13, marginRight: 5, display: 'inline-block', verticalAlign: 'middle', marginTop: -2, flexShrink: 0 }} viewBox="0 0 16 16" fill="none">
+               <path d="M1 4a1 1 0 011-1h3.586a1 1 0 01.707.293L7.414 4.5H14a1 1 0 011 1V12a1 1 0 01-1 1H2a1 1 0 01-1-1V4z" fill={accentColor === 'violet' ? '#7c3aed' : '#2563eb'} opacity="0.85" />
+          </svg>
+     );
+     const badges = {
+          java: { bg: '#1d4ed8', color: '#bfdbfe', text: 'J' },
+          jar: { bg: '#1e3a5f', color: '#7dd3fc', text: 'JAR' },
+          html: { bg: '#7c2d12', color: '#fdba74', text: 'H' },
+          md: { bg: '#134e4a', color: '#5eead4', text: 'MD' },
+          txt: { bg: '#1e293b', color: '#94a3b8', text: 'TXT' },
+          js: { bg: '#713f12', color: '#fde68a', text: 'JS' },
+          css: { bg: '#1e1b4b', color: '#a5b4fc', text: 'CSS' },
+          py: null,
+     };
+     if (clean === '__init__.py') return <span style={{ fontSize: 10, marginRight: 5, color: '#a3e635', fontFamily: 'monospace', verticalAlign: 'middle' }}>⚙</span>;
+     if (clean === '.env') return <span style={{ fontSize: 9, marginRight: 5, background: '#14532d', color: '#86efac', fontWeight: 900, fontFamily: 'monospace', padding: '0 3px', borderRadius: 3, verticalAlign: 'middle' }}>ENV</span>;
+     if (clean === '.gitignore') return <span style={{ fontSize: 10, marginRight: 5, color: '#f97316', verticalAlign: 'middle' }}>⊘</span>;
+     if (ext === 'py') return <span style={{ fontSize: 10, marginRight: 5, color: '#facc15', verticalAlign: 'middle' }}>🐍</span>;
+     const b = badges[ext];
+     if (b) return <span style={{ fontSize: 9, marginRight: 5, background: b.bg, color: b.color, fontWeight: 900, fontFamily: 'monospace', padding: '0 3px', borderRadius: 3, verticalAlign: 'middle' }}>{b.text}</span>;
+     return <span style={{ fontSize: 10, marginRight: 5, color: '#475569', verticalAlign: 'middle' }}>◦</span>;
+}
+
+function FileTree({ content, accentColor }) {
+     const colorForName = (clean) => {
+          const ext = clean.includes('.') ? clean.split('.').pop() : '';
+          if (clean.endsWith('/')) return accentColor === 'violet' ? 'text-violet-400' : 'text-blue-400';
+          if (ext === 'java') return 'text-blue-300';
+          if (ext === 'py') return 'text-yellow-300';
+          if (ext === 'html') return 'text-orange-300';
+          if (ext === 'md') return 'text-teal-300';
+          if (ext === 'js') return 'text-yellow-200';
+          if (ext === 'css') return 'text-indigo-300';
+          if (clean === '.env') return 'text-green-300';
+          return 'text-slate-400';
+     };
+     return (
+          <div className="text-sm font-mono leading-loose p-5 overflow-x-auto">
+               {content.split('\n').map((line, i) => {
+                    const treeChars = line.match(/^[│├└─\s]+/)?.[0] || '';
+                    const rest = line.slice(treeChars.length);
+                    const clean = rest.replace(/\s*←.*$/, '').trim();
+                    const comment = rest.match(/\s*(←.*)$/)?.[1] || '';
+                    return (
+                         <div key={i} className="flex items-center">
+                              <span className="text-slate-700 select-none whitespace-pre">{treeChars}</span>
+                              {rest && (
+                                   <>
+                                        <FileIcon name={rest} accentColor={accentColor} />
+                                        <span className={colorForName(clean)}>{clean}</span>
+                                        {comment && <span className="text-slate-600 ml-3 text-xs italic">{comment}</span>}
+                                   </>
+                              )}
+                         </div>
+                    );
+               })}
+          </div>
+     );
+}
+
 export default function Semester2() {
      const [activeTrack, setActiveTrack] = useState("desktop");
      const track = TRACKS.find((t) => t.id === activeTrack);
@@ -190,7 +256,6 @@ export default function Semester2() {
                     </p>
                </motion.div>
 
-               {/* Stack tecnológico */}
                <motion.div custom={1} variants={fadeUp} initial="hidden" animate="show">
                     <div className="flex items-center gap-3 mb-5">
                          <div className="w-1 h-5 bg-slate-500 rounded-full" />
@@ -215,7 +280,6 @@ export default function Semester2() {
                     </div>
                </motion.div>
 
-               {/* Tracks */}
                <motion.div custom={2} variants={fadeUp} initial="hidden" animate="show">
                     <div className="flex gap-2 mb-5">
                          {TRACKS.map((t) => (
@@ -282,6 +346,18 @@ export default function Semester2() {
                          <span className="text-violet-400">&lt;paquete&gt;</span>
                     </div>
 
+                    <div className="rounded-2xl border border-blue-500/15 bg-blue-500/5 overflow-hidden mb-6">
+                         <div className="flex items-center gap-2 px-4 py-2.5 border-b border-blue-500/15">
+                              <div className="flex gap-1.5">
+                                   <span className="w-3 h-3 rounded-full bg-red-500/60" />
+                                   <span className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                                   <span className="w-3 h-3 rounded-full bg-green-500/60" />
+                              </div>
+                              <span className="text-slate-500 text-xs font-mono ml-2">IntelliJ — New Project</span>
+                         </div>
+                         <img src={java1} alt="IntelliJ New Project — GroupId pe.edu.vallegrande" className="w-full object-cover" />
+                    </div>
+
                     <div className="space-y-2 mb-6">
                          {JAVA_PACKAGES.map((p, i) => (
                               <div key={i} className={`flex items-start gap-4 border rounded-xl px-4 py-3 ${p.bg}`}>
@@ -303,22 +379,85 @@ export default function Semester2() {
                               </div>
                               <span className="text-slate-500 text-xs font-mono ml-2">estructura-java/</span>
                          </div>
-                         <pre className="text-sm font-mono leading-relaxed p-5 overflow-x-auto">
-                              <code>
-                                   {JAVA_STRUCTURE.split('\n').map((line, i) => {
-                                        const isDir = line.includes('/') && !line.includes('.java') && !line.includes('.jar') && !line.includes('.md');
-                                        const isFile = line.includes('.java') || line.includes('.jar') || line.includes('.md');
-                                        return (
-                                             <div key={i}>
-                                                  <span className="text-slate-600">{line.match(/^[│├└─\s]+/)?.[0] || ''}</span>
-                                                  <span className={isDir ? 'text-blue-400' : isFile ? 'text-slate-300' : 'text-slate-400'}>
-                                                       {line.replace(/^[│├└─\s]+/, '')}
-                                                  </span>
-                                             </div>
-                                        );
-                                   })}
-                              </code>
-                         </pre>
+                         <FileTree content={JAVA_STRUCTURE} accentColor="blue" />
+                    </div>
+
+                    <div className="mt-6">
+                         <p className="text-slate-500 text-xs uppercase tracking-widest font-bold mb-3">Arquitectura en capas — flujo de error</p>
+                         <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden p-6 overflow-x-auto">
+                              <svg viewBox="0 0 720 260" className="w-full min-w-130" xmlns="http://www.w3.org/2000/svg">
+                                   <text x="140" y="22" textAnchor="middle" fontSize="10" fontWeight="700" fill="#64748b" letterSpacing="2" fontFamily="monospace">VIEW</text>
+                                   <text x="360" y="22" textAnchor="middle" fontSize="10" fontWeight="700" fill="#64748b" letterSpacing="2" fontFamily="monospace">CONTROLLER</text>
+                                   <text x="570" y="22" textAnchor="middle" fontSize="10" fontWeight="700" fill="#64748b" letterSpacing="2" fontFamily="monospace">SERVICE</text>
+
+                                   <line x1="140" y1="30" x2="140" y2="260" stroke="#1e293b" strokeWidth="1" strokeDasharray="4 4" />
+                                   <line x1="360" y1="30" x2="360" y2="260" stroke="#1e293b" strokeWidth="1" strokeDasharray="4 4" />
+                                   <line x1="570" y1="30" x2="570" y2="260" stroke="#1e293b" strokeWidth="1" strokeDasharray="4 4" />
+
+                                   <circle cx="40" cy="70" r="16" fill="none" stroke="#475569" strokeWidth="1.5" />
+                                   <circle cx="40" cy="64" r="5" fill="none" stroke="#475569" strokeWidth="1.5" />
+                                   <path d="M28 78 Q40 90 52 78" fill="none" stroke="#475569" strokeWidth="1.5" />
+
+                                   <rect x="80" y="42" width="118" height="72" rx="4" fill="#0f172a" stroke="#3b82f6" strokeWidth="1.5" />
+                                   <rect x="80" y="42" width="118" height="16" rx="4" fill="#1e3a5f" />
+                                   <rect x="80" y="50" width="118" height="8" fill="#1e3a5f" />
+                                   <text x="110" y="53" fontSize="8" fill="#93c5fd" fontFamily="monospace">VentanaPrincipal</text>
+                                   <line x1="186" y1="42" x2="186" y2="58" stroke="#60a5fa" strokeWidth="1.2" />
+                                   <text x="188" y="54" fontSize="9" fill="#60a5fa" fontFamily="sans-serif">✕</text>
+
+                                   <line x1="56" y1="70" x2="78" y2="70" stroke="#475569" strokeWidth="1.5" markerEnd="url(#arrowGray)" />
+
+                                   <line x1="198" y1="70" x2="290" y2="70" stroke="#a78bfa" strokeWidth="1.8" markerEnd="url(#arrowPurple)" />
+
+                                   <rect x="292" y="42" width="118" height="56" rx="4" fill="#0f172a" stroke="#8b5cf6" strokeWidth="1.5" />
+                                   <rect x="292" y="42" width="118" height="14" rx="4" fill="#2e1065" />
+                                   <rect x="292" y="48" width="118" height="8" fill="#2e1065" />
+                                   <text x="316" y="53" fontSize="8" fill="#c4b5fd" fontFamily="monospace">ClientController</text>
+                                   <line x1="396" y1="42" x2="396" y2="56" stroke="#a78bfa" strokeWidth="1.2" />
+                                   <text x="398" y="54" fontSize="9" fill="#a78bfa" fontFamily="sans-serif">✕</text>
+
+                                   <line x1="410" y1="70" x2="504" y2="70" stroke="#a78bfa" strokeWidth="1.8" markerEnd="url(#arrowPurple)" />
+
+                                   <rect x="506" y="42" width="118" height="56" rx="4" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+                                   <rect x="506" y="42" width="118" height="14" rx="4" fill="#022c22" />
+                                   <rect x="506" y="48" width="118" height="8" fill="#022c22" />
+                                   <text x="530" y="53" fontSize="8" fill="#6ee7b7" fontFamily="monospace">ClientService</text>
+                                   <line x1="610" y1="42" x2="610" y2="56" stroke="#34d399" strokeWidth="1.2" />
+                                   <text x="612" y="54" fontSize="9" fill="#34d399" fontFamily="sans-serif">✕</text>
+
+                                   <path d="M565 98 L565 130 L351 130 L351 100" fill="none" stroke="#f43f5e" strokeWidth="1.4" strokeDasharray="5 3" markerEnd="url(#arrowRed)" />
+                                   <text x="410" y="125" fontSize="8" fill="#f43f5e" fontFamily="monospace">throw new RuntimeException(&quot;msg&quot;);</text>
+                                   <text x="450" y="140" fontSize="8" fill="#fb7185" fontWeight="bold" fontFamily="monospace">Error</text>
+
+                                   <path d="M351 98 L351 160 L140 160 L140 116" fill="none" stroke="#f43f5e" strokeWidth="1.4" strokeDasharray="5 3" markerEnd="url(#arrowRed)" />
+                                   <text x="188" y="155" fontSize="8" fill="#f43f5e" fontFamily="monospace">throw new RuntimeException(&quot;msg&quot;);</text>
+
+                                   <rect x="80" y="182" width="100" height="62" rx="4" fill="#0f172a" stroke="#f43f5e" strokeWidth="1.5" />
+                                   <rect x="80" y="182" width="100" height="14" rx="4" fill="#450a0a" />
+                                   <rect x="80" y="188" width="100" height="8" fill="#450a0a" />
+                                   <text x="104" y="193" fontSize="8" fill="#fca5a5" fontFamily="monospace">Error</text>
+                                   <line x1="168" y1="182" x2="168" y2="196" stroke="#f43f5e" strokeWidth="1.2" />
+                                   <text x="170" y="194" fontSize="9" fill="#f43f5e" fontFamily="sans-serif">✕</text>
+
+                                   <circle cx="40" cy="210" r="16" fill="none" stroke="#ef4444" strokeWidth="1.5" />
+                                   <circle cx="40" cy="204" r="5" fill="none" stroke="#ef4444" strokeWidth="1.5" />
+                                   <path d="M28 220 Q40 210 52 220" fill="none" stroke="#ef4444" strokeWidth="1.5" />
+
+                                   <line x1="56" y1="210" x2="78" y2="210" stroke="#ef4444" strokeWidth="1.2" markerEnd="url(#arrowRed)" />
+
+                                   <defs>
+                                        <marker id="arrowPurple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                                             <path d="M0,0 L0,6 L8,3 z" fill="#a78bfa" />
+                                        </marker>
+                                        <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                                             <path d="M0,0 L0,6 L8,3 z" fill="#f43f5e" />
+                                        </marker>
+                                        <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                                             <path d="M0,0 L0,6 L8,3 z" fill="#475569" />
+                                        </marker>
+                                   </defs>
+                              </svg>
+                         </div>
                     </div>
                </motion.div>
 
@@ -331,7 +470,6 @@ export default function Semester2() {
                     <p className="text-slate-500 text-sm mb-4 leading-relaxed max-w-2xl">
                          Arquitectura por <span className="text-violet-400 font-medium">Blueprints</span> con separación en capas: rutas, servicios y modelos. Tailwind CSS integrado vía <span className="text-sky-400 font-medium">CDN</span> directamente en <code className="text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded text-xs">base.html</code>, sin npm ni herramientas de compilación.
                     </p>
-                    {/* snippet CDN */}
                     <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden mb-4">
                          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800">
                               <div className="flex gap-1.5">
@@ -365,23 +503,7 @@ export default function Semester2() {
                               </div>
                               <span className="text-slate-500 text-xs font-mono ml-2">estructura-flask/</span>
                          </div>
-                         <pre className="text-sm font-mono leading-relaxed p-5 overflow-x-auto">
-                              <code>
-                                   {FLASK_STRUCTURE.split('\n').map((line, i) => {
-                                        const isDir = line.includes('/') && !line.includes('.');
-                                        const isComment = line.includes('←');
-                                        const isFile = !isDir && line.includes('.');
-                                        return (
-                                             <div key={i}>
-                                                  <span className="text-slate-600">{line.match(/^[│├└─\s]+/)?.[0] || ''}</span>
-                                                  <span className={isComment ? 'text-slate-600 italic' : isDir ? 'text-violet-400' : isFile ? 'text-slate-300' : 'text-slate-400'}>
-                                                       {line.replace(/^[│├└─\s]+/, '')}
-                                                  </span>
-                                             </div>
-                                        );
-                                   })}
-                              </code>
-                         </pre>
+                         <FileTree content={FLASK_STRUCTURE} accentColor="violet" />
                     </div>
                </motion.div>
 
@@ -415,23 +537,6 @@ export default function Semester2() {
                          ))}
                     </div>
                </motion.div>
-
-               <motion.div
-                    custom={4} variants={fadeUp} initial="hidden" animate="show"
-                    className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-5 flex items-start gap-4"
-               >
-                    <div className="shrink-0 w-10 h-10 rounded-xl bg-violet-600/15 border border-violet-600/30 flex items-center justify-center text-violet-400 text-lg">
-                         ℹ
-                    </div>
-                    <div>
-                         <p className="text-slate-300 font-semibold text-sm mb-1">Semestre en preparación</p>
-                         <p className="text-slate-500 text-xs leading-relaxed">
-                              El contenido completo, proyectos y retos de este semestre se habilitarán progresivamente.
-                              Los recursos de estándares ya están disponibles para descarga.
-                         </p>
-                    </div>
-               </motion.div>
-
           </div>
      );
 }
