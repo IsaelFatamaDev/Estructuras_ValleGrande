@@ -1,0 +1,10 @@
+
+  Id     Duration CommandLine
+  --     -------- -----------
+   1        0.016 cd .\OneDrive\Escritorio\
+   2        0.014 cd .\demo\
+   3        0.117 ls
+   4        2.900 git clone https://github.com/IsaelFatamaDev/Estructuras_ValleGrande.git
+   5        0.018 cd .\Estructuras_ValleGrande\
+   6        0.205 ls
+
